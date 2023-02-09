@@ -530,17 +530,41 @@ HTTP/2에서는 하나의 요청에 여러 응답을 반환하는 푸시 타입 
 HTTP/3의 가장 큰 차이점이라고 할 수 있는 것은 TCP가 아닌 UDP를 사용한다는 것이다. 이로써 3웨이 핸드셰이크에 걸리는 시간을 줄이고
 더 많은 HTTP 데이터를 보낼 수 있게 되었다.
 
+<br>
+<br>
 
-[//]: # (#### HTTP 상태 코드)
+#### HTTP 상태 코드
 
-[//]: # (| 클래스 | 상태 코드 | 리즌 프레이즈  | 설명                      |)
+##### **1xx**
+*Informational*  
+* 100 Continue : 클라이언트는 리퀘스트를 계속할 수 있다.
+* 101 Switching Protocols : Upgrade 헤더를 사용해 프로토콜, 또는 버전을 변경한다.
 
-[//]: # (|-----|-------|----------|-------------------------|)
+##### **2xx**  
+*Success*  
+* 200 OK : 정상적으로 처리를 종료했다.
 
-[//]: # (| 1xx | 100   | Continue | 클라이언트는 리퀘스트를 계속 할 수 있다. |)
+##### **3xx**  
+*Redirection*  
+* 301 Moved Permanently : Location 헤더를 사용해, 다른 URI에 리다이렉트(전송)한다. 영구 대응
+* 302 Found : Location 헤더를 사용해, 다른 URI로 리다이렉트(전송)한다. 임시 대응
+* 304 Not Modified : 리소스가 업데이트되지 않았다.
 
-[//]: # ()
-[//]: # ()
+##### **4xx**  
+*Client Error*  
+* 400 Bad Request : 리퀘스트 구분에 오류가 있다.
+* 401 Unauthorized : 인증에 실패했다.
+* 403 Forbidden : 해당 리소스에 대해 액세스가 거부되었다.
+* 404 Not Found : 해당 리소스가 존재하지 않는다.
+* 406 Not Acceptable : 대응하는 종류의 파일이 없다.
+* 412 Precondition Failed : 전제 조건을 만족하지 않는다.
+
+##### **5xx**  
+*Server Error*  
+* 503 Service Unavailable : 웹서버 애플리케이션에 장애가 발생했다. 
+
+<br>
+
 ### SSL/TLS 
 
 **SSL**(Secure Socket Layer)/**TLS**(Transport Layer Security)는 암호화 프로토콜이다.  
