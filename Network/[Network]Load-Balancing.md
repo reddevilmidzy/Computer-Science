@@ -9,6 +9,26 @@
 제외해 서비스의 가용성을 향상시킨다.  
 
 
+## 로드 밸런싱 기능
+### NAP(Network Address Translation)  
+* 사설 IP 주소를 공인 IP 주소로 혹은 공인 IP 주소를 사설 IP로 변환해주는 기능
+* SNAT(Source Network Address Translation) 내부에서 외부로 트래픽이 나가는 경우, 사설 IP 주소 -> 공인 IP 주소 
+* DNAT(Destination Network Address Translation) 외부에서 내부로 트래픽이 들어오는 경우, 공인 IP 주소 -> 사설 IP 주소
+
+### Tunneling
+* 데이터를 캡슐화해서 연결된 상호 간에만 캡슐화된 패킷을 구별해 캡슐화를 해제 가능
+* 로드 밸런서의 **VIP** 주소로 가는 요구 패킷이 로드 밸런싱 서버에 전달되면 패킷의 목적지 주소와 포트를 검사후 가상 서버 정책과 일치 할 경우 스케줄링에 따라 실제 작업 서버로 전달될 때 캡슐 형식 사용
+### DSR(Direct Server Routing)
+* 서버에서 클라이언트로 되돌아가는 경우 목적지를 클라이언트로 설정한 다음, 네트워크 장비나 로드 밸런서를 거치지 않고 바로 클라이어트로 찾아가는 방식
+* 로드 밸런서의 부하를 줄여줌
+
+<br>
+
+### **VIP**(Virtual IP)
+> VIP란 로드 밸런싱의 대상이 되는 여러 서버를 대표하는 가상의 IP이다. 클라이언트들은 서버의 IP로 직접 요청을 하는 것이 아니라 LB가 가지고 있는 VIP를 대상으로 요청한다.
+> 그리고 LB는 설정된 부하 분산 방법에 따라 각 서버로 요청을 분산한다.
+
+
 ## NLB과 ALB
 
 로드 밸런싱을 사용하는 계층은 전송 계층과 애플리케이션 계층이다. 전송 계층에서 사용하는 로드 밸런싱은 **NLB**(Network LoadBalancer) 혹은 L4, 
@@ -51,4 +71,6 @@
 
 [로드 밸런싱 종류와 알고리즘](https://dev.classmethod.jp/articles/load-balancing-types-and-algorithm/)  
 [로드밸런서의 개념과 특징](https://m.post.naver.com/viewer/postView.nhn?volumeNo=27046347&memberNo=2521903)  
-[로드밸런서의 종류와 동작방식](https://deveric.tistory.com/91)
+[로드밸런서의 종류와 동작방식](https://deveric.tistory.com/91)  
+[로드 밸런서란?](https://nesoy.github.io/articles/2018-06/Load-Balancer)  
+[[네트워크]로드 밸런서](https://steady-codng.tistory.com/535)
