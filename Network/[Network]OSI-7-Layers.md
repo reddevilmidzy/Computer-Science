@@ -549,10 +549,96 @@ HTTP를 SSL/TLS로 암호화 한것이 바로 **HTTPS**(HyperText Transfer Proto
 TLS는 SSL의 버전을 업데이트 한것이다. SSL은 **암호화, 해시화, 디지털 인증서**라는 3가지 기술을 조합해 사용함으로써 보안을 지킨다.  
 
 
-* 암호화를 통한 도청 방지
-* 해시화를 통한 변조 방지
-* 디지털 인증서를 통한 신분 위조 방지
+* **암호화를 통한 도청 방지**
+* - 공통키 암호화 방식
+* - 공개키 암호화 방식
+* **해시화를 통한 변조 방지**
+* **디지털 인증서를 통한 신분 위조 방지**
 
+HTTPS 서버를 인터넷에 공개할 때는 서버인증서를 준비, 인증 기관으로의 신청 등을 사전에 준비해야한다. HTTPS 서버를 공개하기까지의 
+흐름은 다음과 같다.
+1. 비밀키 생성
+2. CSR 작성
+3. 신원 조사 & 서명
+4. 설치
+
+#### **비밀키 생성**  
+HTTPS 서버에서 비밀키를 만든다.  
+ex) 비밀키 파일  
+```text
+-----BEGIN RSA PRIVATE KEY-----
+
+miIZTYdyz
+
+-----END RSA PRIVATE KEY-----
+```
+
+#### **CSR 작성**
+위에서 만든 비밀키를 기반으로 **CSR**(Certificate Signing Request)을 만들어 인증 기관에 보낸다. CSR이란 서버 인증서를 
+얻기 위해 인증 기관에 제출하는 신청서이다.  
+```text
+-----BEGIN CERTIFICATE REQUEST-----
+
+-----END CERTIFICATE REQUEST-----
+```
+
+####  **신원 조사 & 서명**  
+신청자의 신원을조사한다. 여신(신용) 데이터를 조회하거나 제3자 기관의 데이터베이스에 기재된 전화번호로 전화하는 등 인증 기관 안에서 정해진
+여러 프로세스에 기반하여 수행한다. 
+```text
+-----BEGIN CERTIFICATE-----
+
+-----END CERTIFICATE-----
+```
+
+#### **설치**  
+인증 기관에서 받은 서버 인증서를 서버에 설치한다. 
+
+<br>
+<br>
+
+
+### SSL 핸드 셰이크
+SSL 핸드 셰이크는 웹브라우저와 HTTPS 서버가 서로 어떻게 메시지를 암호화하여 통신할 지 사전에 준비하는 과정이다.  
+![SSL 핸드 셰이크](ssl-tls-handshake.png)  
+
+
+서버와 통신하는 방법은 크게 4단계로 구성되어 있다.  
+1. 대응 방식 제시
+2. 통신 상대 증명
+3. 공통키 재료 교환
+4. 최종 혹인
+
+
+**대응하는 암호화 방식과 해시 함수 제시**  
+웹브라우저는 서버에게 사용할 수 있는 암호화 방식이나 해시화 방식의 조합 목록이 담긴 `Client Hello` 메시지를 송신한다. 이 조합을 **암호 스위트**(cipher suite)라고
+부른다. 또한 추가로 SSL과 HTTP의 버전, 공통키 작성에 필요한 **client random** 등도 같이 보단다.
+
+
+**통신 상대 증명**  
+**Server Hello, Certificate, Server Hello Done**의 3가지 프로세스로 구성되어 있다.  
+
+1. Server Hello  
+서버는 Client Hello에 받은 암호 스위트와 자신이 가지고 있는 암호 스위트를 비교한 것 중에 가장 우선도가 높은 암호 스위트를 선택한다.
+또한 클라이언트와 맞춰야하는 **server random** 등 정보도 **Server Hello**로 반환한다.
+2. Certificate  
+Certificate로 서버 인증서를 보내서, 자신이 제3자 기관으로부터 인증받았다는 것을 증명한다.
+3. Server Hello Done  
+Server Hello Done으로 정보 전송 완료를 알린다.  웹브라우저는 받은 서버 인증서를 검증(루트 인증서로 복호화 -> 해시값 비교)하고, 올바른 서버인지 확인한다. 
+
+**공통키 교환**  
+웹브라우저는 통신 상대가 실제 서버인 것을 확인하면 **프리 마스터 시크릿**(pre-master secret)이라는 공통키의 재료를 만들어
+서버로 보낸다. 웹브라우저와 HTTPS 서버는 이 프리 마스터 시크릿과 Client Hello로 얻은 client random, Server Hello에서 얻은 server random을 
+섞어 **마스터 시크릿**(master secret)을 만든다. 서버와 클라이언트는 client random과 server random을 교환했기에 서로 프리 마스터 시크릿만 보내도 마스터 시크릿을
+만들 수 있다.
+이 마스터 시크릿을 이용해 애플리케이션의 데이터의 암호화에 사용하는 공통키 **세션키**와 해시화에 사용하는 **MAC키**를 만든다.  
+웹브라우저는 `Client Key Exchange`로 프리 마스터 시크릿을 공개키로 암호화해서 보낸다. 이를 받은 서버는 비밀키로 복호화해서 프리 마스터 시크릿을 추출하고 
+client random과 server random을 뒤섞어 마스터 시크릿을 만든다. 그리고 마스터 시크릿에서 세션키와 MAC키를 생성함으로써 공통키 생성이 완료된다.  
+
+
+**최종 확인 작업**
+서로 `Change Cipher Spec`과 `Finished`를 교환하고, 이제까지 결정한 결정한 사항들을 확인하고, SSL 핸드셰이크를 종료한다. 이제 SSL 세션이 만들어지고
+애플리케이션 데이터 암호화 통신을 시작한다. 
 
 ### DNS
 
@@ -560,4 +646,5 @@ TLS는 SSL의 버전을 업데이트 한것이다. SSL은 **암호화, 해시화
 ---
 
 ### reference
-[그림으로 공부하는 TCP/IP 구조](http://www.yes24.com/Product/Goods/104210768)
+[그림으로 공부하는 TCP/IP 구조](http://www.yes24.com/Product/Goods/104210768)  
+[[브라우저에 URL 입력 후 일어나는 일들] 5_TLS/SSL Handshake](https://wangin9.tistory.com/entry/%EB%B8%8C%EB%9D%BC%EC%9A%B0%EC%A0%80%EC%97%90-URL-%EC%9E%85%EB%A0%A5-%ED%9B%84-%EC%9D%BC%EC%96%B4%EB%82%98%EB%8A%94-%EC%9D%BC%EB%93%A4-5TLSSSL-Handshake)
