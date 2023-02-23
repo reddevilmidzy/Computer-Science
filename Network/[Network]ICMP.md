@@ -43,7 +43,7 @@ ICMP 메시지는 다음과 같이 8비트의 타입과 8비트의 코드 그리
 * * Redirect for ToS and host : 수신지 호스트와 ToS 값의 통신을 지정된 IP 주소로 전송
 * ### 8 Echo Request
 * * 0 Echo Request : 에코 요청
-* ### Time exceeded
+* ### 11 Time exceeded
 * * 0 Time to live exceeded in transit : TTL이 초과함.
 
 
